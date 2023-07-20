@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Product(models.Model):
+    class Meta:
+        ordering = ["name", "price"]
     name = models.CharField(max_length=100)
     description = models.TextField(null=False, blank=True) # Описание продукта
     price = models.DecimalField(default=0, max_digits=8, decimal_places=2)
@@ -16,9 +18,11 @@ class Product(models.Model):
     #    return self.description[:48] + "..."
 
     def __str__(self) -> str:
-        return f"Product(pk={self.pk}, name={self.name!r})"
+        return f"{self.name!r}"
 
 class Order(models.Model):
+    class Meta:
+        ordering = ["delivery_address", "user"]
     delivery_address = models.TextField(null=True, blank=True)
     promocode = models.CharField(max_length=20, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
