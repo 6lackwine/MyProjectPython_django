@@ -30,7 +30,7 @@ class CountRequestMiddleware: # Подсчет запросов
     def process_exception(self, request: HttpRequest, exception: Exception):
         self.exceptions_count += 1
         print("got", self.exceptions_count, "exceptions so far")
-        request.META.get()
+        #request.META.get()
 
 class ThrottlingMiddleware:
     """ Класс выдает ошибку при частых запросах от пользователя """

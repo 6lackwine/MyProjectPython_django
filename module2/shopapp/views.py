@@ -1,7 +1,9 @@
 from timeit import default_timer
+
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from .forms import ProductForm, OrderForm
 
 from .models import Product
@@ -50,11 +52,20 @@ class ProductListView(ListView): # Адресовка шаблона отдел�
     context_object_name = "products"
     queryset = Product.objects.filter(archived=False)
 
-class ProductCreateView(CreateView):
+class ProductCreateView(PermissionRequiredMixin, CreateView):
+    #def test_func(self): # если пользователь не суперюзер, то ему не будет доступ к созданию заказа
+        #return self.request.user.is_superuser # проверка на суперюзера
+    permission_required = "shopapp.add_product"
     model = Product # Какой продукт создавать
     fields = "name", "price", "description", "discount" # Какие поля запрашивать
     success_url = reverse_lazy("shopapp:products_list") # Ссылка куда нужно вернуться после успешного создания продукта
     # reverse_lazy вычисляет значение только когда идет обращение именно к этому объекту
+    def form_valid(self, form):
+        product = form.save(commit=False)
+        product.created_by = self.request.user
+        product.save()
+        return super().form_valid(form)
+
 
 class ProductDeleteView(DeleteView):
     model = Product
@@ -66,10 +77,15 @@ class ProductDeleteView(DeleteView):
         self.object.save()
         return HttpResponseRedirect(success_url)
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(UserPassesTestMixin, UpdateView):
     model = Product
     fields = "name", "price", "description", "discount"
     template_name_suffix = "_update_form"
+    def test_func(self):
+        is_super_user = self.request.user.is_superuser
+        return is_super_user or (self.request.user.has_perm("shopapp.change_product") and
+                                 self.request.user.id == self.get_object().created_by_id)
+
 
     def get_success_url(self):
         return reverse("shopapp:product_details", kwargs={"pk": self.object.pk}) # Генерируем ссылку, для datails нужно указать pk, pk нужно передать через kwargs. Kwargs это те параметры url которые мы можем предзаполнить. Нужно указать, что pk ссылается на self.object.pk. На self.object доступен объект обновление которого сейчас идет, то есть объект был обновлен он доступен по self.object
@@ -91,12 +107,13 @@ class ProductUpdateView(UpdateView):
 #    }
 #    return render(request, "shopapp/create-product.html", context=context)
 
-class OrdersListView(ListView):
+class OrdersListView(LoginRequiredMixin, ListView):
     queryset = (
         Order.objects.select_related("user").prefetch_related("products")
     )
 
-class OrdersDetailView(DetailView):
+class OrdersDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "view_order"
     #queryset = (
     #    Order.objects.select_related("user").prefetch_related("products")
     #)
