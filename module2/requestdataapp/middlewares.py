@@ -6,6 +6,7 @@ def set_useragent_on_request_middleware(get_response):
     print("Initial call") # Здесь происходит вызов только при старте приложения
     def middleware(request: HttpRequest): # Принимает запрос до того как его обработает вью функция
         print("before get response")
+        request.META.get("HTTP_USER_AGENT")
         #request.user_agent = request.META["HTTP_USER_AGENT"]
         response = get_response(request)
         print("after get response")

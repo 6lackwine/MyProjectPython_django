@@ -113,7 +113,7 @@ class OrdersListView(LoginRequiredMixin, ListView):
     )
 
 class OrdersDetailView(PermissionRequiredMixin, DetailView):
-    permission_required = "view_order"
+    permission_required = "shopapp.view_order"
     #queryset = (
     #    Order.objects.select_related("user").prefetch_related("products")
     #)
