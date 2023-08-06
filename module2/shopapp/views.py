@@ -2,11 +2,11 @@ from timeit import default_timer
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import Group, User
 from .forms import ProductForm, OrderForm
 
-from .models import Product
+from .models import Product, ProductImage
 from .models import Order
 
 from django.views import View
@@ -43,7 +43,8 @@ class GroupsListView(View):
 
 class ProductDetailsView(DetailView): # Класс для отображения деталей товара
     template_name = "shopapp/products-details.html"
-    model = Product
+    #model = Product
+    queryset = Product.objects.prefetch_related("images")
     context_object_name = "product"
 
 class ProductListView(ListView): # Адресовка шаблона отдельно делается в родительском классе
@@ -57,7 +58,7 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
         #return self.request.user.is_superuser # проверка на суперюзера
     permission_required = "shopapp.add_product"
     model = Product # Какой продукт создавать
-    fields = "name", "price", "description", "discount" # Какие поля запрашивать
+    fields = "name", "price", "description", "discount", "preview" # Какие поля запрашивать
     success_url = reverse_lazy("shopapp:products_list") # Ссылка куда нужно вернуться после успешного создания продукта
     # reverse_lazy вычисляет значение только когда идет обращение именно к этому объекту
     def form_valid(self, form):
@@ -79,8 +80,18 @@ class ProductDeleteView(DeleteView):
 
 class ProductUpdateView(UserPassesTestMixin, UpdateView):
     model = Product
-    fields = "name", "price", "description", "discount"
+    #fields = "name", "price", "description", "discount", "preview"
     template_name_suffix = "_update_form"
+    form_class = ProductForm
+
+    def form_valid(self, form):
+       response = super().form_valid(form)
+       for image in form.files.getlist("images"):
+           ProductImage.objects.create(
+                product=self.object,
+                image=image)
+       return response
+
     def test_func(self):
         is_super_user = self.request.user.is_superuser
         return is_super_user or (self.request.user.has_perm("shopapp.change_product") and
@@ -152,3 +163,22 @@ class OrderDeleteView(DeleteView):
 #        "form": form
 #    }
 #    return render(request, "shopapp/order_form.html", context=context)
+
+class OrderExport(View):
+    def get(self, request: HttpRequest) -> JsonResponse:
+        orders = Order.objects.order_by("pk").all()
+        order_data = [{
+            "pk": order.pk,
+            "delivery_address": order.delivery_address,
+            "promocode": order.promocode,
+            "user": order.user_id,
+            "products": [
+                {
+                    "pk": product.pk,
+                }
+                    for product in order.products.all()
+            ]
+        }
+                for order in orders
+            ]
+        return JsonResponse({"order": order_data})

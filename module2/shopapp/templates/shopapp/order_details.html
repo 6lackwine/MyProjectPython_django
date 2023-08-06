@@ -14,6 +14,8 @@
       <ul>
         {% for product in object.products.all %}
         <li> {{ product.name }} for ${{ product.price }}</li>
+        <li> {{ order.delivery_address }}</li>
+        <li> {{ order.promocode }}</li>
         {% endfor %}
       </ul>
     </div>

@@ -10,7 +10,8 @@ from .views import ShopIndexView,\
     ProductDeleteView,\
     OrderCreateView,\
     OrderUpdateView,\
-    OrderDeleteView
+    OrderDeleteView, \
+    OrderExport
 
 app_name = "shopapp"
 
@@ -23,6 +24,7 @@ urlpatterns = [
     path("products/<int:pk>/update/", ProductUpdateView.as_view(), name="product_update"),
     path("products/<int:pk>/confirm-archived/", ProductDeleteView.as_view(), name="product_delete"),
     path("orders/", OrdersListView.as_view(), name="orders_list"),
+    path("orders/export/", OrderExport.as_view(), name="order_export"),
     path("orders/<int:pk>/", OrdersDetailView.as_view(), name="order_details"),
     path("orders/create/", OrderCreateView.as_view(), name="order_create"),
     path("orders/<int:pk>/update/", OrderUpdateView.as_view(), name="order_update"),
