@@ -13,6 +13,16 @@
         <p>Last name: {{ user.last_name }}</p>
         <p>Email: {{ user.email }}</p>
         <p>Bio: {{user.profile.bio}}</p>
+    <div>
+        {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" width="100" height="100" alt="{{ user.profile.name }}">
+        {% else %}
+            <div>
+                No avatar
+            </div>
+        {% endif %}
+        <a href="{% url 'myauth:update' pk=request.user.pk %}">Edit profile</a>
+    </div>
     {% else %}
         <h2>User is anonymous</h2>
     {% endif %}

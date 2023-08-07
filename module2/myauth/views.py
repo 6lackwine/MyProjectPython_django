@@ -4,13 +4,27 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.views import LogoutView
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, UpdateView
 from django.contrib.auth.forms import UserCreationForm
+
+from .forms import ProfileForm
 from .models import Profile
 from django.views import View
 
 class AboutMeView(TemplateView):
     template_name = "myauth/about-me.html"
+    fields = "user", "bio", "avatar"
+    model = Profile
+    form_class = ProfileForm
+    # context_object_name = "user"
+
+class UpdateProfile(UpdateView):
+    model = Profile
+    template_name = "myauth/profile_update_form.html"
+    fields = "user", "bio", "avatar"
+
+    def get_success_url(self):
+        return reverse("myauth:update", kwargs={"pk": self.object.pk})
 
 class RegisterView(CreateView): # Класс для регистрации пользователя
     form_class = UserCreationForm

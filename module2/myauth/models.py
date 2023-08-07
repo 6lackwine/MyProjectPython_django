@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 def user_avatar_path(instance: "Profile", filename: str) -> str:
-    return "profiles/profile_{pk}/avatar/{format}".format(
+    return "profiles/profile_{pk}/avatar/{filename}".format(
         pk=instance.user.pk,
         filename=filename,
     )
@@ -13,4 +13,4 @@ class Profile(models.Model):
     # Теперь укажем дополнительные поля
     bio = models.TextField(max_length=500, blank=True) # blank=True - позволяет хранить пустые значения
     agreement_accepted = models.BooleanField(default=False) # Позволит хранить информацию о том, что пользователь принял соглашение
-    #avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
+    avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True) # Добавляем аватар
