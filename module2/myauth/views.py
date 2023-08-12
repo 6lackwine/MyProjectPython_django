@@ -18,14 +18,14 @@ from django.views import View
 class AboutMeView(TemplateView):
     model = Profile
     template_name = "myauth/about-me.html"
-    fields = "user", "bio", "avatar"
+    #fields = "user", "bio", "avatar"
     queryset = Profile.objects.all()
     context_object_name = "profiles"
 
 class UserProfile(TemplateView):
     model = Profile
     template_name = "myauth/about-me.html"
-    fields = "user", "bio", "avatar"
+    #fields = "user", "bio", "avatar"
     queryset = Profile.objects.all()
     context_object_name = "profiles"
 
@@ -37,6 +37,9 @@ class UpdateProfile(UpdateView):
 
     def get_success_url(self):
         return reverse("myauth:update", kwargs={"pk": self.object.pk})
+
+    def user_is_staff(self):
+        return (self.request.user.is_staff or self.request.user.pk == self.get_object().user.pk)
 
 class UserList(ListView):
     model = Profile

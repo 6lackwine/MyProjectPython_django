@@ -5,22 +5,24 @@
 {% endblock %}
 
 {% block body %}
-    <div>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Update</button>
-            <p>Avatar:</p>
-        </form>
-        {% if user.profile.avatar %}
-            <img src="{{ profile.avatar.url }}" width="100" height="100" alt="{{ profile.name }}">
-        {% else %}
-            <div>
-                No avatar uploaded yet
-            </div>
-        {% endif %}
-    <div>
-        <a href="{% url 'myauth:about-me' %}">Back to user info</a>
-    </div>
-    </div>
+    {% if request.user.is_staff or request.user.pk %}
+        <div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Update</button>
+                <p>Avatar:</p>
+            </form>
+            {% if user.profile.avatar %}
+                <img src="{{ profile.avatar.url }}" width="100" height="100" alt="{{ profile.name }}">
+            {% else %}
+                <div>
+                    No avatar uploaded yet
+                </div>
+            {% endif %}
+        <div>
+            <a href="{% url 'myauth:about-me' %}">Back to user info</a>
+        </div>
+        </div>
+    {% endif %}
 {% endblock %}

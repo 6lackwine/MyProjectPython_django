@@ -16,13 +16,15 @@
     <div>
         {% if user.profile.avatar %}
             <p>Avatar:</p>
-            <img src="{{ profile.avatar.url }}" width="100" height="100" alt="{{ profile.name }}">
+            <img src="{{ user.profile.avatar.url }}" width="100" height="100" alt="{{ profile.name }}">
         {% else %}
             <div>
                 No avatar
             </div>
         {% endif %}
-        <a href="{% url 'myauth:update' pk=user.profile.pk %}">Edit profile</a>
+        {% if request.user.is_staff or request.user.pk %}
+            <a href="{% url 'myauth:update' pk=user.profile.pk %}">Edit profile</a>
+        {% endif %}
     </div>
     {% else %}
         <h2>User is anonymous</h2>

@@ -6,7 +6,8 @@
 
 {% block body %}
   <h1>Profile List:</h1>
-  {% for prof in profiles %}
-    <a href="{% url 'myauth:about-me' pk=prof.pk %}">{{ prof.user }}</a>
+
+  {% for prof in profile %}
+    <a href="{% url 'myauth:user-profile' pk=prof.pk %}">{{ prof.user }}</a>
   {% endfor %}
 {% endblock %}
