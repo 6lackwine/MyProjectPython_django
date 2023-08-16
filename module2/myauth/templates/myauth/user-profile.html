@@ -1,28 +1,30 @@
 {% extends "myauth/base.html" %}
 
 {% block title %}
-  About me
+  User profile
 {% endblock %}
 
 {% block body %}
     <h1>User info</h1>
     {% if user.is_authenticated %}
         <h2>Detail</h2>
-        <p>Username: {{ user.username }}</p>
-        <p>First name: {{ user.first_name }}</p>
-        <p>Last name: {{ user.last_name }}</p>
-        <p>Email: {{ user.email }}</p>
-        <p>Bio: {{ user.profile.bio }}</p>
+        <p>Username: {{ profiles.user.username }}</p>
+        <p>First name: {{ profiles.user.first_name }}</p>
+        <p>Last name: {{ profiles.user.last_name }}</p>
+        <p>Email: {{ profiles.user.email }}</p>
+        <p>Bio: {{ profiles.bio }}</p>
     <div>
         {% if user.profile.avatar %}
             <p>Avatar:</p>
-            <img src="{{ user.profile.avatar.url }}" width="100" height="100" alt="{{ user.profile.name }}">
+            <img src="{{ profiles.avatar.url }}" width="100" height="100" alt="{{ profiles.name }}">
         {% else %}
             <div>
                 No avatar
             </div>
         {% endif %}
+        {% if request.user.is_staff or request.user == profiles.user %}
             <a href="{% url 'myauth:update' pk=user.profile.pk %}">Edit profile</a>
+        {% endif %}
     </div>
     <div>
         <a href="{% url 'myauth:user-list' %}">User list</a>

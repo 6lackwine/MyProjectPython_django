@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.models import User
@@ -22,9 +22,9 @@ class AboutMeView(TemplateView):
     queryset = Profile.objects.all()
     context_object_name = "profiles"
 
-class UserProfile(TemplateView):
+class UserProfile(DetailView):
     model = Profile
-    template_name = "myauth/about-me.html"
+    template_name = "myauth/user-profile.html"
     #fields = "user", "bio", "avatar"
     queryset = Profile.objects.all()
     context_object_name = "profiles"
