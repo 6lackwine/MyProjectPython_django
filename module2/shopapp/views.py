@@ -4,6 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import Group, User
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.viewsets import ModelViewSet
+
 from .forms import ProductForm, OrderForm
 
 from .models import Product, ProductImage
@@ -13,6 +18,51 @@ from django.views import View
 from .forms import GroupForm
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+
+from .serializers import ProductSerializers, OrderSerializers
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializers
+    filter_backends = [
+        SearchFilter,
+        DjangoFilterBackend,
+        OrderingFilter,
+    ]
+    search_fields = ["name", "description"]
+    filterset_fields = [
+        "name",
+        "discount",
+        "description",
+        "archived",
+        "price",
+    ]
+    ordering_fields = [
+        "name",
+        "price"
+    ]
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializers
+    filter_backends = [
+        SearchFilter,
+        DjangoFilterBackend,
+        OrderingFilter,
+    ]
+    filterset_fields = [
+        "user",
+        "products",
+        "delivery_address",
+        "created_at",
+    ]
+    ordering_fields = [
+        "user",
+        "products",
+        "delivery_address",
+        "created_at",
+    ]
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
