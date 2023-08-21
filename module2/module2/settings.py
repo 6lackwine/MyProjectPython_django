@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
-import django_filters.rest_framework
+#import django.contrib.admindocs.middleware
+#import django_filters.rest_framework
+#import drf_spectacular.openapi
 from django.urls import reverse_lazy
 
 from django.utils.translation import gettext_lazy as _
@@ -42,13 +44,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.admindocs",
 
     'rest_framework',
     'django_filters',
+    "drf_spectacular",
 
     'shopapp.apps.ShopappConfig',
     'requestdataapp.apps.RequestdataappConfig',
     'myauth.apps.MyauthConfig',
+    "myapiapp.apps.MyapiappConfig",
+
 ]
 
 MIDDLEWARE = [
@@ -63,6 +69,7 @@ MIDDLEWARE = [
     "requestdataapp.middlewares.CountRequestMiddleware",
     #"requestdataapp.middlewares.ThrottlingMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "django.contrib.admindocs.middleware.XViewMiddleware",
 ]
 
 ROOT_URLCONF = 'module2.urls'
@@ -160,5 +167,13 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
-    ]
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "My Site Project API",
+    "DESCRIPTION": "My site with shop app and custom auth",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
