@@ -27,6 +27,7 @@ from django.conf.urls.i18n import i18n_patterns
 urlpatterns = [
     path("req/", include("requestdataapp.urls")),
     path("accounts/", include("myauth.urls")),
+    path("blog/", include("blogapp.urls")),
 ]
 
 urlpatterns += i18n_patterns(
@@ -35,7 +36,7 @@ urlpatterns += i18n_patterns(
     path("shop/", include("shopapp.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/schema/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),
-    path("api/", include("myapiapp.urls")),
+    path("api/", include("myapiapp.urls"))
 )
 
 if settings.DEBUG:

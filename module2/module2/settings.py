@@ -9,9 +9,10 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import logging
 from pathlib import Path
 
+import django.utils.log
 #import django.contrib.admindocs.middleware
 #import django_filters.rest_framework
 #import drf_spectacular.openapi
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'requestdataapp.apps.RequestdataappConfig',
     'myauth.apps.MyauthConfig',
     "myapiapp.apps.MyapiappConfig",
+    'blogapp.apps.BlogappConfig',
 
 ]
 
@@ -176,4 +178,28 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "My site with shop app and custom auth",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+}
+
+LOGGING = {
+    "version": 1,
+    "filters": { # Позволяют указать когда выводить логи для SQL запроса
+        "require_debug_true": { # Выводит логи только в дебаг режиме
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    # Теперь добавляем обработчики для этих запросов
+    "handlers": {
+        "console": {
+            "level": "DEBUG", # Уровень логирования
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+        },
+    },
+    # Указываем какие логгеры нужно использовать
+    "loggers": {
+        "django.db.backends": { # Взаимодействие с базой данных в джанго должно использовать "console"
+            "level": "DEBUG",
+            "handlers": ["console"],
+        }
+    },
 }

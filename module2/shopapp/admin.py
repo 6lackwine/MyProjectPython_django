@@ -5,6 +5,8 @@ from django.db.models import QuerySet
 
 from .admin_mixins import ExportCSVMixin
 
+
+
 class ProductInline(admin.StackedInline):
     model = ProductImage
 

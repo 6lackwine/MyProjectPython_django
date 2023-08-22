@@ -94,7 +94,7 @@ class GroupsListView(View):
 class ProductDetailsView(DetailView): # Класс для отображения деталей товара
     template_name = "shopapp/products-details.html"
     #model = Product
-    queryset = Product.objects.prefetch_related("images")
+    queryset = Product.objects.prefetch_related("images") # prefetch_related указывает связь один ко многим
     context_object_name = "product"
 
 class ProductListView(ListView): # Адресовка шаблона отдельно делается в родительском классе
