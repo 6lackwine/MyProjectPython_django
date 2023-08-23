@@ -1,0 +1,52 @@
+2023-08-23 01:21:57,251 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 01:22:13,838 WARNING django.request: Not Found: /favicon.ico
+2023-08-23 01:22:19,524 INFO shopapp.views: Rendering shop index
+2023-08-23 02:04:28,416 INFO django.utils.autoreload: D:\MyProjectPython\module2\module2\settings.py changed, reloading.
+2023-08-23 02:04:30,038 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 02:05:11,665 INFO django.utils.autoreload: D:\MyProjectPython\module2\module2\settings.py changed, reloading.
+2023-08-23 02:05:13,035 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 02:06:16,122 INFO django.utils.autoreload: D:\MyProjectPython\module2\module2\settings.py changed, reloading.
+2023-08-23 02:10:56,391 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 03:22:03,921 WARNING django.request: Not Found: /
+2023-08-23 20:06:05,821 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:06:46,256 WARNING django.request: Not Found: /shop/products/export
+2023-08-23 20:07:23,671 WARNING django.request: Not Found: /shop/products/export/
+2023-08-23 20:09:13,621 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:09:14,913 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:29:38,578 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:29:40,127 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:34:36,152 INFO django.utils.autoreload: D:\MyProjectPython\module2\module2\settings.py changed, reloading.
+2023-08-23 20:35:30,453 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:36:06,280 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:36:08,055 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:37:36,762 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:37:38,623 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:38:08,995 ERROR django.request: Internal Server Error: /ru/shop/orders/export/
+Traceback (most recent call last):
+  File "D:\MyProjectPython\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\MyProjectPython\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\MyProjectPython\venv\Lib\site-packages\sentry_sdk\integrations\django\views.py", line 84, in sentry_wrapped_callback
+    return callback(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\MyProjectPython\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\MyProjectPython\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\MyProjectPython\module2\shopapp\views.py", line 240, in get
+    name = elem["usr"]
+           ~~~~^^^^^^^
+KeyError: 'usr'
+2023-08-23 20:38:53,093 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:38:54,954 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:39:09,178 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:39:11,143 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:40:43,912 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:40:45,643 INFO django.utils.autoreload: Watching for file changes with StatReloader
+2023-08-23 20:41:42,163 INFO django.utils.autoreload: D:\MyProjectPython\module2\shopapp\views.py changed, reloading.
+2023-08-23 20:41:44,148 INFO django.utils.autoreload: Watching for file changes with StatReloader
