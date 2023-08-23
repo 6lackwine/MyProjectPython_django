@@ -1,3 +1,4 @@
+import logging
 from timeit import default_timer
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -20,6 +21,8 @@ from django.views.generic import TemplateView, ListView, DetailView, CreateView,
 from django.urls import reverse_lazy
 
 from .serializers import ProductSerializers, OrderSerializers
+
+log = logging.getLogger(__name__)
 
 
 class ProductViewSet(ModelViewSet):
@@ -75,6 +78,8 @@ class ShopIndexView(View):
             "time_running": default_timer(),
             "products": products,
         }
+        log.debug("Products for shop index: %s", products)
+        log.info("Rendering shop index")
         return render(request, "shopapp/shop-index.html", context=context)
 
 class GroupsListView(View):
@@ -231,4 +236,7 @@ class OrderExport(View):
         }
                 for order in orders
             ]
+        # elem = order_data[0]
+        # name = elem["user"]
+        # print(name)
         return JsonResponse({"order": order_data})

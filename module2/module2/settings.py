@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import logging
 from pathlib import Path
 
+import debug_toolbar.middleware
 import django.utils.log
 #import django.contrib.admindocs.middleware
 #import django_filters.rest_framework
@@ -19,6 +20,13 @@ import django.utils.log
 from django.urls import reverse_lazy
 
 from django.utils.translation import gettext_lazy as _
+
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://6ed0cbfdc2fc0b248dbeb47b29f5ece9@o4505755406368768.ingest.sentry.io/4505755421638656",
+    traces_sample_rate=1.0,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +41,21 @@ SECRET_KEY = 'django-insecure-wf=fl!%y=b9!j+pudnbx6@+jlad8^)r@v(1e3q!rtu2%67ao#0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "127.0.0.1",
+]
+INTERNAL_IPS = [ # Внутренние IP адреса по которым можно запрашивать приложение вместе с django-debug-toolbar
+    "127.0.0.1",
+]
+
+if DEBUG:
+    import socket
+    hostname, __, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS.append("10.0.2.2")
+    INTERNAL_IPS.extend(
+        [ip[: ip.rfind(".")] + ".1" for ip in ips]
+    )
 
 
 # Application definition
@@ -47,6 +69,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "django.contrib.admindocs",
 
+    "debug_toolbar",
     'rest_framework',
     'django_filters',
     "drf_spectacular",
@@ -72,6 +95,7 @@ MIDDLEWARE = [
     #"requestdataapp.middlewares.ThrottlingMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.admindocs.middleware.XViewMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'module2.urls'
@@ -180,26 +204,57 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+LOGFILE_NAME = BASE_DIR / "log.txt" # Название файла
+LOGFILE_SIZE = 1 * 1024 * 1024 # Максимальный размер файла, после заполняемости создается новый файл
+LOGFILE_COUNT = 3 # Количество файлов
+
 LOGGING = {
     "version": 1,
-    "filters": { # Позволяют указать когда выводить логи для SQL запроса
-        "require_debug_true": { # Выводит логи только в дебаг режиме
-            "()": "django.utils.log.RequireDebugTrue",
+    "disable_existing_loggers": False, # Нужно для того чтобы не отключать существующие логгеры
+    "formatters": {
+        "verbose": { # Будет форматировать подробные логи
+            "format": "%(asctime)s %(levelname)s %(name)s: %(message)s",
         },
     },
-    # Теперь добавляем обработчики для этих запросов
-    "handlers": {
+    "handlers": { # Обработчики, которые будут обрабатывать все логи
         "console": {
-            "level": "DEBUG", # Уровень логирования
-            "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "logfile": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOGFILE_NAME,
+            "maxBytes": LOGFILE_SIZE,
+            "backupCount": LOGFILE_COUNT,
+            "formatter": "verbose",
         },
     },
-    # Указываем какие логгеры нужно использовать
-    "loggers": {
-        "django.db.backends": { # Взаимодействие с базой данных в джанго должно использовать "console"
-            "level": "DEBUG",
-            "handlers": ["console"],
-        }
+    "root": {
+        "handlers": ["console", "logfile"],
+        "level": "INFO",
     },
 }
+
+#{
+#     "version": 1,
+#     "filters": { # Позволяют указать когда выводить логи для SQL запроса
+#         "require_debug_true": { # Выводит логи только в дебаг режиме
+#             "()": "django.utils.log.RequireDebugTrue",
+#         },
+#     },
+#     # Теперь добавляем обработчики для этих запросов
+#     "handlers": {
+#         "console": {
+#             "level": "DEBUG", # Уровень логирования
+#             "filters": ["require_debug_true"],
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     # Указываем какие логгеры нужно использовать
+#     "loggers": {
+#         "django.db.backends": { # Взаимодействие с базой данных в джанго должно использовать "console"
+#             "level": "DEBUG",
+#             "handlers": ["console"],
+#         }
+#     },
+# }
