@@ -2,6 +2,7 @@ import logging
 from timeit import default_timer
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.syndication.views import Feed
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import Group, User
@@ -240,3 +241,18 @@ class OrderExport(View):
         # name = elem["user"]
         # print(name)
         return JsonResponse({"order": order_data})
+
+class LatestProductsFeed(Feed):
+    title = "Products"
+    description = "Product Description"
+    link = reverse_lazy("shopapp:products_list")
+
+    def items(self):
+        # created_at__isnull=False нужен чтобы пользователи не видели продукты которые еще не опубликованы
+        return (Product.objects.filter(created_at__isnull=False).order_by("-created_at"))[:5]
+
+    def item_name(self, item: Product):
+        return item.name
+
+    def item_description(self, item: Product):
+        return item.description[:200]

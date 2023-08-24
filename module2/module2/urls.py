@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.sitemaps.views import sitemap # Позволяет сгенерировать ответ на sitemap
+from .sitemaps import sitemaps
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
@@ -28,6 +30,7 @@ urlpatterns = [
     path("req/", include("requestdataapp.urls")),
     path("accounts/", include("myauth.urls")),
     path("blog/", include("blogapp.urls")),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
 ]
 
 urlpatterns += i18n_patterns(
