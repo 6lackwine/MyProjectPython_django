@@ -2,6 +2,7 @@ from io import TextIOWrapper
 from csv import DictReader
 
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.urls import path
 
@@ -11,7 +12,6 @@ from django.db.models import QuerySet
 from .forms import CSVImportForm
 
 from .admin_mixins import ExportCSVMixin
-
 
 
 class ProductInline(admin.StackedInline):
@@ -105,12 +105,17 @@ class OrderAdmin(admin.ModelAdmin):
             encoding=request.encoding,
         )
         reader = DictReader(csv_file)
+        for row in reader:
+            order, created = Order.objects.get_or_create(
+                promocode=row["promocode"],
+                user=User.objects.get(pk=row["user"]),
+                delivery_address=row["delivery_address"]
+            )
+            products_list = row["products"].split(" ")
+            for product in products_list:
+                product_object = Product.objects.get(pk=product)
+                order.products.add(product_object)
 
-        orders = [
-            Order(**row)
-            for row in reader
-        ]
-        Order.objects.bulk_create(orders)
         self.message_user(request, "Data from CSV was imported")
         return redirect("..")
 

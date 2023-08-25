@@ -1,2 +1,2 @@
-delivery_address,promocode,user_id
-"Pushkina 1","AAA26",3
+promocode,user,delivery_address,products,
+"AAA26",3,"Pushkina 1",1 3
