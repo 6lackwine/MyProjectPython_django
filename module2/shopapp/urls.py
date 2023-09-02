@@ -15,7 +15,7 @@ from .views import ShopIndexView, \
     OrderDeleteView, \
     OrderExport, \
     ProductViewSet, \
-    OrderViewSet, LatestProductsFeed
+    OrderViewSet, LatestProductsFeed, UserOrdersListView, UserOrdersDataExportJSON
 
 app_name = "shopapp"
 
@@ -42,4 +42,6 @@ urlpatterns = [
     path("orders/create/", OrderCreateView.as_view(), name="order_create"),
     path("orders/<int:pk>/update/", OrderUpdateView.as_view(), name="order_update"),
     path("orders/<int:pk>/confirm-delete/", OrderDeleteView.as_view(), name="order_delete"),
+    path("users/<int:user_id>/orders/", UserOrdersListView.as_view(), name="user_orders"),
+    path("users/<int:user_id>/orders/export/", UserOrdersDataExportJSON.as_view(), name="user_orders_export"),
 ]

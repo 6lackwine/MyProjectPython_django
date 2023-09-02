@@ -4,12 +4,15 @@ from timeit import default_timer
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.syndication.views import Feed
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse, Http404
 from django.contrib.auth.models import Group, User
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .forms import ProductForm, OrderForm
 
@@ -22,6 +25,7 @@ from django.views.generic import TemplateView, ListView, DetailView, CreateView,
 from django.urls import reverse_lazy
 
 from .serializers import ProductSerializers, OrderSerializers
+from django.core.cache import cache
 
 log = logging.getLogger(__name__)
 
@@ -256,3 +260,45 @@ class LatestProductsFeed(Feed):
 
     def item_description(self, item: Product):
         return item.description[:200]
+
+class UserOrdersListView(UserPassesTestMixin, ListView):
+    template_name = "shopapp/user_orders.html"
+    model = Order
+    context_object_name = "user_orders"
+    #queryset = Order.objects.all()
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+    def get_queryset(self):
+        self.owner = User.objects.get(pk=self.kwargs["user_id"])
+        get_object_or_404(User, username=self.owner, pk=self.request.user.pk)
+        return Order.objects.filter(user=self.owner)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["owner"] = self.owner
+        return context
+
+class UserOrdersDataExportJSON(View):
+    def get(self, request: HttpRequest) -> JsonResponse:
+        cache_key = "orders_data_export"
+        orders_data = cache.get(cache_key) # получаем и сохраняем данные из кэша
+        user = get_object_or_404(User, user_id=request.user.id)
+        if orders_data is None:
+            orders = Order.objects.order_by("pk").filter(user=user)
+            orders_data = [{
+                "pk": order.pk,
+                "delivery_address": order.delivery_address,
+                "promocode": order.promocode,
+                "user": orders.user.id,
+                "products": [
+                    {
+                        "pk": product.pk,
+                    }
+                        for product in order.products.all()
+                ]
+            }
+                    for order in orders
+                ]
+            cache.set(cache_key, orders_data, 120) # добавляем данные в кэш
+        return JsonResponse({"order": orders_data})
