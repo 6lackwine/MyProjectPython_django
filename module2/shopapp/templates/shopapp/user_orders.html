@@ -6,14 +6,17 @@
 {% endblock %}
 
 {% block body %}
-  <h1>Orders:</h1>
+  <h1>Orders {{ user.username }}:</h1>
   {% if user.is_authenticated %}
       <div>
-        {% for order in user_orders %}
-          <p>Name: {{ owner.first_name }}</p>
-          <p>Surname: {{ owner.last_name }}</p>
-          <p>Email: {{ owner.email }}</p>
-          {% cache 5 user_orders owner %}
+        <h3>User information:</h3>
+        <p>Name: {{ owner.first_name }}</p>
+        <p>Surname: {{ owner.last_name }}</p>
+        <p>Email: {{ owner.email }}</p>
+        <br>
+        {% cache 60 user_orders owner %}
+        <h3>Orders:</h3>
+          {% for order in user_orders %}
             <p>Details №{{ order.pk }}</p>
             Product in order:
             {% for product in order.products.all %}
@@ -21,10 +24,11 @@
                   {{ product.name }} for ${{ product.price }}
               </ul>
             {% endfor %}
-          {% endcache %}
         {% empty %}
-          <h3>The user {{ owner.username }} has no orders</h3>
-        {% endfor %}
+        <h3>The user {{ owner.username }} has no orders</h3>
+          {% endfor %}
+        {% endcache %}
+
       </div>
 
   {% endif %}

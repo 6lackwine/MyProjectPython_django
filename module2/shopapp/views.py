@@ -279,26 +279,37 @@ class UserOrdersListView(UserPassesTestMixin, ListView):
         context["owner"] = self.owner
         return context
 
-class UserOrdersDataExportJSON(View):
-    def get(self, request: HttpRequest) -> JsonResponse:
-        cache_key = "orders_data_export"
+# class UserOrdersDataExportJSON(View):
+#     def get(self, request: HttpRequest, user_id) -> JsonResponse:
+#         cache_key = "orders_data_export"
+#         orders_data = cache.get(cache_key) # получаем и сохраняем данные из кэша
+#         user = get_object_or_404(User, pk=user_id)
+#         if orders_data is None:
+#             orders = Order.objects.order_by("pk").filter(user=user)
+#             orders_data = [{
+#                 "pk": order.pk,
+#                 "delivery_address": order.delivery_address,
+#                 "promocode": order.promocode,
+#                 "user": order.user.pk,
+#                 "products": [
+#                     {
+#                         "pk": product.pk,
+#                     }
+#                         for product in order.products.all()
+#                 ]
+#             }
+#                     for order in orders
+#                 ]
+#             cache.set(cache_key, orders_data, 5) # добавляем данные в кэш
+#         return JsonResponse({"order": orders_data})
+
+class UserOrdersDataExportJSON(APIView):
+    def get(self, request: HttpRequest, user_id) -> JsonResponse:
+        cache_key = f"orders_data_export_user_{user_id}"
         orders_data = cache.get(cache_key) # получаем и сохраняем данные из кэша
-        user = get_object_or_404(User, user_id=request.user.id)
+        user = get_object_or_404(User, pk=user_id)
         if orders_data is None:
             orders = Order.objects.order_by("pk").filter(user=user)
-            orders_data = [{
-                "pk": order.pk,
-                "delivery_address": order.delivery_address,
-                "promocode": order.promocode,
-                "user": orders.user.id,
-                "products": [
-                    {
-                        "pk": product.pk,
-                    }
-                        for product in order.products.all()
-                ]
-            }
-                    for order in orders
-                ]
-            cache.set(cache_key, orders_data, 120) # добавляем данные в кэш
+            serialized = OrderSerializers(orders, many=True)
+            cache.set(cache_key, serialized.data, 120) # добавляем данные в кэш
         return JsonResponse({"order": orders_data})
