@@ -10,3 +10,5 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY module2 .
+
+CMD ["gunicorn", "module2.wsgi:application", "--bind", "0.0.0.0:8000"]

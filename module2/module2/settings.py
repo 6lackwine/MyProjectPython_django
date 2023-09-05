@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-import logging
+import logging.config
 from pathlib import Path
+from os import getenv
 
 import debug_toolbar.middleware
 import django.utils.log
@@ -30,21 +31,27 @@ sentry_sdk.init(
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE_DIR = BASE_DIR / "database"
+DATABASE_DIR.mkdir(exist_ok=True)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wf=fl!%y=b9!j+pudnbx6@+jlad8^)r@v(1e3q!rtu2%67ao#0'
+SECRET_KEY = getenv(
+    "DJANGO_SECRET_KEY",
+    'django-insecure-wf=fl!%y=b9!j+pudnbx6@+jlad8^)r@v(1e3q!rtu2%67ao#0',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv("DJANGO_DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = [
     "0.0.0.0",
     "127.0.0.1",
-]
+] + getenv("DJANGO_ALLOWED_HOST", "").split(",")
+
 INTERNAL_IPS = [ # Внутренние IP адреса по которым можно запрашивать приложение вместе с django-debug-toolbar
     "127.0.0.1",
 ]
@@ -128,7 +135,7 @@ WSGI_APPLICATION = 'module2.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATABASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -216,36 +223,61 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-LOGFILE_NAME = BASE_DIR / "log.txt" # Название файла
-LOGFILE_SIZE = 1 * 1024 * 1024 # Максимальный размер файла, после заполняемости создается новый файл
-LOGFILE_COUNT = 3 # Количество файлов
+# LOGFILE_NAME = BASE_DIR / "log.txt" # Название файла
+# LOGFILE_SIZE = 1 * 1024 * 1024 # Максимальный размер файла, после заполняемости создается новый файл
+# LOGFILE_COUNT = 3 # Количество файлов
 
-LOGGING = {
+LOGLEVEL = getenv("DJANGO_LOGLEVEL", "info").upper()
+logging.config.dictConfig({
     "version": 1,
-    "disable_existing_loggers": False, # Нужно для того чтобы не отключать существующие логгеры
+    "disable_existing_loggers": False,
     "formatters": {
-        "verbose": { # Будет форматировать подробные логи
-            "format": "%(asctime)s %(levelname)s %(name)s: %(message)s",
+        "console": {
+            "format": "%(asctime)s" "%(levelname)s" "[%(name)s:%(lineno)s]" "%(module)s" "%(message)s",
         },
     },
-    "handlers": { # Обработчики, которые будут обрабатывать все логи
+    "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-        "logfile": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGFILE_NAME,
-            "maxBytes": LOGFILE_SIZE,
-            "backupCount": LOGFILE_COUNT,
-            "formatter": "verbose",
+            "formatter": "console",
         },
     },
-    "root": {
-        "handlers": ["console", "logfile"],
-        "level": "INFO",
+    "loggers": {
+        "": {
+            "level": LOGLEVEL,
+            "handlers": [
+                "console",
+            ],
+        },
     },
-}
+})
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False, # Нужно для того чтобы не отключать существующие логгеры
+#     "formatters": {
+#         "verbose": { # Будет форматировать подробные логи
+#             "format": "%(asctime)s %(levelname)s %(name)s: %(message)s",
+#         },
+#     },
+#     "handlers": { # Обработчики, которые будут обрабатывать все логи
+#         "console": {
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         },
+#         "logfile": {
+#             "class": "logging.handlers.RotatingFileHandler",
+#             "filename": LOGFILE_NAME,
+#             "maxBytes": LOGFILE_SIZE,
+#             "backupCount": LOGFILE_COUNT,
+#             "formatter": "verbose",
+#         },
+#     },
+#     "root": {
+#         "handlers": ["console", "logfile"],
+#         "level": "INFO",
+#     },
+# }
 
 #{
 #     "version": 1,
