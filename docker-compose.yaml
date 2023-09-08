@@ -20,6 +20,7 @@ services:
         max-size: "200k"
     volumes:
       - ./module2/database:/app/database
+    context: .
 
 #  grafana:
 #    image: grafana/grafana:9.2.15
